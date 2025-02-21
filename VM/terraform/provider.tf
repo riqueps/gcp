@@ -23,6 +23,6 @@ terraform {
   }
   backend "gcs" {
     bucket = "henrique-tf-state"
-    prefix = "gke"
+    prefix = "vm"
   }
 }
