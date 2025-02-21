@@ -25,6 +25,18 @@ module "vpc" {
             subnet_flow_logs      = "false"
         }
     ]
+    secondary_ranges = {
+    (local.private_subnet_name) = [
+      {
+        range_name    = "gke-pods"
+        ip_cidr_range = "192.168.0.0/18"
+      },
+      {
+        range_name    = "gke-services"
+        ip_cidr_range = "192.168.64.0/18"
+      },
+    ]
+  }
 }
 
 # cloud router and cloud nat

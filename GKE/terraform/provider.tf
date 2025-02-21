@@ -1,6 +1,7 @@
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs
 provider "google" {
-  region = "us-central1"
+  region = local.region
+  project = local.project_id
 }
 
 # # https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer
@@ -13,7 +14,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 4.25"
+      version = "~> 6.21.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -22,5 +23,6 @@ terraform {
   }
   backend "gcs" {
     bucket = "henrique-tf-state"
+    prefix = "gke"
   }
 }

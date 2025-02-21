@@ -1,6 +1,6 @@
 locals {
-    region = "<gcp_region>"
-    project_id = "<project_id>"
+    region = "us-central1"
+    project_id = "semiotic-ion-451513-i3"
     env_name = "sample"
     private_subnet_name = "private"
     public_subnet_name = "public"
