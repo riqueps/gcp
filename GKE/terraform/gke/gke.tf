@@ -1,13 +1,20 @@
 data "google_project" "main" {
-  project_id = local.project_id
+  project_id = var.gcp_project_id
 }
 
 data "google_client_config" "default" {}
 
 # gke service account
 resource "google_service_account" "service_account" {
-  account_id   = "${local.env_name}-gke-sa"
+  account_id   = "${var.env_name}-gke-sa"
   display_name = "GKE Service Account"
+}
+
+# random string for key ring
+resource "random_string" "random" {
+  length           = 5
+  special          = false
+  lower            = true
 }
 
 # kms
@@ -16,10 +23,10 @@ module "kms" {
   source  = "terraform-google-modules/kms/google"
   version = "~> 4.0"
 
-  project_id           = local.project_id
+  project_id           = var.gcp_project_id
   key_protection_level = "HSM"
-  location             = local.region
-  keyring              = "${local.env_name}-keyring"
+  location             = var.gcp_region
+  keyring              = "${var.env_name}-keyring-${random_string.random.result}"
   keys                 = ["gke-key"]
   prevent_destroy      = false
 }
@@ -31,7 +38,7 @@ resource "google_kms_crypto_key_iam_binding" "main" {
   members        = [
     "serviceAccount:service-${data.google_project.main.number}@container-engine-robot.iam.gserviceaccount.com",
     "serviceAccount:service-${data.google_project.main.number}@compute-system.iam.gserviceaccount.com",
-    "serviceAccount:${local.env_name}-gke-sa@${local.project_id}.iam.gserviceaccount.com"
+    "serviceAccount:${var.env_name}-gke-sa@${var.gcp_project_id}.iam.gserviceaccount.com"
   ]
 }
 
@@ -47,12 +54,12 @@ module "gke" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
   version = "~> 36.0.2"
 
-  project_id              = local.project_id
-  name                    = "${local.env_name}-gke-cluster"
-  region                  = local.region
+  project_id              = var.gcp_project_id
+  name                    = "${var.env_name}-gke-cluster"
+  region                  = var.gcp_region
   zones                   = ["us-central1-a", "us-central1-b"]
   network                 = module.vpc.network_name
-  subnetwork              = local.private_subnet_name
+  subnetwork              = var.private_subnet_name
   ip_range_pods           = module.vpc.subnets_secondary_ranges[0][0].range_name
   ip_range_services       = module.vpc.subnets_secondary_ranges[0][1].range_name
   release_channel         = "REGULAR"
@@ -66,10 +73,10 @@ module "gke" {
   boot_disk_kms_key       = values(module.kms.keys)[0]
   horizontal_pod_autoscaling = true
 
-#   master_authorized_networks = [{
-#     cidr_block   = module.vpc.subnets["${local.private_subnet_name}"].subnet_ip
-#     display_name = "Private access"
-#   }]
+  master_authorized_networks = [{
+    cidr_block   = "${module.bastion.ip_address}/32"
+    display_name = "Private access"
+  }]
   
   database_encryption = [
     {

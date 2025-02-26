@@ -1,8 +1,11 @@
-## Deploy a GKE Cluster following best practices
+## Deploy a secure GKE Cluster
 
-- 1 gcp project
-- GKE cluster with managed nodes
-- Google Config Connector controller
-- Nginx deployment (test purposes)
+- Deploy Infra + GKE
+
+`make tf-gke-apply`
+
+- Deploy GKE App
+
+`make tf-app-apply`
 
 
