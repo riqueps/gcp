@@ -23,8 +23,8 @@ module "bastion" {
   source  = "terraform-google-modules/bastion-host/google"
   version = "~> 8.0"
 
-  network        = module.vpc.network_self_link
-  subnet         = module.vpc.subnets_self_links[0]
+  network        = var.network
+  subnet         = var.private_subnet_selflink
   project        = var.gcp_project_id
   host_project   = var.gcp_project_id
   name           = "${var.env_name}-bastion"

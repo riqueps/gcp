@@ -58,10 +58,10 @@ module "gke" {
   name                    = "${var.env_name}-gke-cluster"
   region                  = var.gcp_region
   zones                   = ["us-central1-a", "us-central1-b"]
-  network                 = module.vpc.network_name
-  subnetwork              = var.private_subnet_name
-  ip_range_pods           = module.vpc.subnets_secondary_ranges[0][0].range_name
-  ip_range_services       = module.vpc.subnets_secondary_ranges[0][1].range_name
+  network                 = var.network
+  subnetwork              = "private"
+  ip_range_pods           = var.pod_range
+  ip_range_services       = var.service_range
   release_channel         = "REGULAR"
   grant_registry_access   = true
   enable_private_nodes    = true

@@ -12,13 +12,3 @@ variable "env_name" {
   type = string
   description = "Env Name (sample, dev, test, ...)"
 }
-
-variable "private_subnet_name" {
-  type = string
-  description = "Private subnet name"
-}
-
-variable "public_subnet_name" {
-  type = string
-  description = "Public subnet name"
-}
