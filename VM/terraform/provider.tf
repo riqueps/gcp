@@ -1,7 +1,7 @@
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs
 provider "google" {
-  region = local.region
-  project = local.project_id
+  region = var.gcp_region
+  project = var.gcp_project_id
 }
 
 # # https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer

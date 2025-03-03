@@ -11,8 +11,8 @@
 #  --source-ranges=35.235.240.0/20
 
  resource "google_compute_firewall" "iap" {
-    project = local.project_id
-    name    = "iap-${local.env_name}"
+    project = var.gcp_project_id
+    name    = "iap-${var.env_name}"
     network = module.vpc.network_name
     description = "Allow IAP login for VMs"
 
