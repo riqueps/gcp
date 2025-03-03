@@ -1,4 +1,4 @@
-export GCP_PROJECT_ID ?= semiotic-ion-451513-i3
+export GCP_PROJECT_ID ?= 
 export ENV_NAME ?= sample
 export GCP_REGION ?= us-central1
 export GCP_ZONE ?= us-central1-a
