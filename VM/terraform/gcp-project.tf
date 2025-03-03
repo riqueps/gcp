@@ -4,7 +4,7 @@ module "enabled_google_apis" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
   version = "~> 18.0"
 
-  project_id                  = local.project_id
+  project_id                  = var.gcp_project_id
   disable_services_on_destroy = false
 
   activate_apis = [
@@ -32,7 +32,7 @@ resource "google_compute_project_metadata" "default" {
   metadata = {
     block-project-ssh-keys  = "TRUE"
     enable-guest-attributes = "TRUE"
-    enable-osconfig = "TRUE"
-    enable-oslogin = "TRUE"
+    enable-osconfig         = "TRUE"
+    enable-oslogin          = "TRUE"
   }
 }
