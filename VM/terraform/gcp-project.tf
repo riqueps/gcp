@@ -32,7 +32,7 @@ resource "google_compute_project_metadata" "default" {
   metadata = {
     block-project-ssh-keys  = "TRUE"
     enable-guest-attributes = "TRUE"
-    enable-osconfig = "TRUE"
-    enable-oslogin = "TRUE"
+    enable-osconfig         = "TRUE"
+    enable-oslogin          = "TRUE"
   }
 }
