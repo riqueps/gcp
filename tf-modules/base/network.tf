@@ -9,7 +9,7 @@ module "vpc" {
 
     subnets = [
         {
-            subnet_name = var.public_subnet_name
+            subnet_name = "public"
             subnet_ip   = "10.10.10.0/24"
             subnet_region = var.gcp_region
             stack_type = "IPV4_ONLY"
@@ -17,7 +17,7 @@ module "vpc" {
             subnet_flow_logs      = "false"
         },
         {
-            subnet_name = var.private_subnet_name
+            subnet_name = "private"
             subnet_ip   = "10.10.20.0/24"
             subnet_region = var.gcp_region
             stack_type = "IPV4_ONLY"
@@ -26,7 +26,7 @@ module "vpc" {
         }
     ]
     secondary_ranges = {
-    (var.private_subnet_name) = [
+    private = [
       {
         range_name    = "gke-pods"
         ip_cidr_range = "192.168.0.0/18"
@@ -64,7 +64,7 @@ module "cloud_router" {
     nat_ips                            = ["${resource.google_compute_address.egress_ip.self_link}"]
     subnetworks = [
       {
-        name                     = module.vpc.subnets["${var.gcp_region}/${var.private_subnet_name}"].id
+        name                     = module.vpc.subnets["${var.gcp_region}/private"].id
         source_ip_ranges_to_nat  = ["PRIMARY_IP_RANGE"]
       }
     ]

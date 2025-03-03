@@ -1,7 +1,7 @@
 export GCP_PROJECT_ID ?= 
 export ENV_NAME ?= sample
-export GCP_REGION ?= 
-export GCP_ZONE ?= 
+export GCP_REGION ?= us-central1
+export GCP_ZONE ?= us-central1-a
 export PRIVATE_SUBNET_NAME = "private"
 export PUBLIC_SUBNET_NAME = "public"
 
@@ -15,37 +15,32 @@ gcp-enable-apis:
 
 # GKE Cluster
 tf-gke-init:
-	terraform -chdir=$(PWD)/terraform/gke init -upgrade
+	terraform -chdir=$(PWD)/gke init -upgrade
 
 tf-gke-plan:
-	terraform -chdir=$(PWD)/terraform/gke plan \
+	terraform -chdir=$(PWD)/gke plan \
 		-var gcp_project_id=$(GCP_PROJECT_ID) \
 		-var gcp_region=$(GCP_REGION) \
-		-var env_name=$(ENV_NAME) \
-		-var private_subnet_name=$(PRIVATE_SUBNET_NAME) \
-		-var public_subnet_name=$(PUBLIC_SUBNET_NAME)
+		-var env_name=$(ENV_NAME)
 
 
 tf-gke-apply:
-	terraform -chdir=$(PWD)/terraform/gke apply -auto-approve \
+	terraform -chdir=$(PWD)/gke apply -auto-approve \
 		-var gcp_project_id=$(GCP_PROJECT_ID) \
 		-var gcp_region=$(GCP_REGION) \
-		-var env_name=$(ENV_NAME) \
-		-var private_subnet_name=$(PRIVATE_SUBNET_NAME) \
-		-var public_subnet_name=$(PUBLIC_SUBNET_NAME)
+		-var env_name=$(ENV_NAME)
 
 tf-gke-destroy:
-	terraform -chdir=$(PWD)/terraform/gke destroy -auto-approve -lock=false \
+	terraform -chdir=$(PWD)/gke destroy -auto-approve -lock=false \
 		-var gcp_project_id=$(GCP_PROJECT_ID) \
 		-var gcp_region=$(GCP_REGION) \
-		-var env_name=$(ENV_NAME) \
-		-var private_subnet_name=$(PRIVATE_SUBNET_NAME) \
-		-var public_subnet_name=$(PUBLIC_SUBNET_NAME)
+		-var env_name=$(ENV_NAME)
+
 ##################
 
 # GKE APP
 tf-app-init:
-	terraform -chdir=$(PWD)/terraform/app init -upgrade -migrate-state
+	terraform -chdir=$(PWD)/gke-app init -upgrade -migrate-state
 
 bastion-ssh-tunnel:
 	gcloud compute ssh $(ENV_NAME)-bastion \
@@ -55,13 +50,13 @@ bastion-ssh-tunnel:
     	--ssh-flag="-4 -L8888:localhost:8888 -N -q -f"
 
 tf-app-apply: bastion-ssh-tunnel
-	@HTTPS_PROXY=localhost:8888 terraform -chdir=$(PWD)/terraform/app apply -auto-approve \
+	@HTTPS_PROXY=localhost:8888 terraform -chdir=$(PWD)/gke-app apply -auto-approve \
 									-var gcp_project_id=$(GCP_PROJECT_ID) \
 									-var gcp_region=$(GCP_REGION) \
 									-var env_name=$(ENV_NAME)
 
 tf-app-destroy: bastion-ssh-tunnel
-	@HTTPS_PROXY=localhost:8888 terraform -chdir=$(PWD)/terraform/app destroy -auto-approve -lock=false \
+	@HTTPS_PROXY=localhost:8888 terraform -chdir=$(PWD)/gke-app destroy -auto-approve -lock=false \
 									-var gcp_project_id=$(GCP_PROJECT_ID) \
 									-var gcp_region=$(GCP_REGION) \
 									-var env_name=$(ENV_NAME)

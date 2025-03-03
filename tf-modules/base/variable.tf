@@ -12,13 +12,3 @@ variable "env_name" {
   type = string
   description = "Env Name (sample, dev, test, ...)"
 }
-
-# variable "gke_endpoint" {
-#   type = string
-#   description = "GKE Endpoint"
-# }
-
-# variable "gke_ca_certificate" {
-#   type = string
-#   description = "GKE CA Certificate"
-# }

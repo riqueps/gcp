@@ -11,7 +11,24 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.google_container_cluster.gke_cluster.master_auth[0].cluster_ca_certificate)
 }
 
+# Workload identity for gke workloads
+# https://registry.terraform.io/modules/terraform-google-modules/kubernetes-engine/google/11.0.0/submodules/workload-identity
+module "workload_identity_hello_app" {
+  source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
+  version             = "11.0.0"
+  project_id          = var.gcp_project_id
+  name                = "example-hello-app-sa"
+  namespace           = "default"
+}
 
+# Grant storage admin permission to the SA
+resource "google_project_iam_member" "sa_binding" {
+  project = var.gcp_project_id
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:${module.workload_identity_hello_app.gcp_service_account_email}"
+}
+
+# K8S objects
 resource "kubernetes_deployment_v1" "default" {
   metadata {
     name = "example-hello-app-deployment"
@@ -23,7 +40,7 @@ resource "kubernetes_deployment_v1" "default" {
         app = "hello-app"
       }
     }
-
+    
     template {
       metadata {
         labels = {
@@ -32,6 +49,7 @@ resource "kubernetes_deployment_v1" "default" {
       }
 
       spec {
+        service_account_name = "example-hello-app-sa"
         container {
           image = "us-docker.pkg.dev/google-samples/containers/gke/hello-app:2.0"
           name  = "hello-app-container"
@@ -131,7 +149,6 @@ resource "kubernetes_ingress_v1" "ingress" {
   }
 }
 
-
 resource "kubernetes_manifest" "backendconfig" {
   manifest = {
     "apiVersion" = "cloud.google.com/v1"
@@ -147,8 +164,3 @@ resource "kubernetes_manifest" "backendconfig" {
     }
   }
 }
-
-# resource "google_compute_backend_service" "default" {
-#   name          = "${var.env_name}-backend-service"
-#   security_policy = "${var.env_name}-ca-policy"
-# }
