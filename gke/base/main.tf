@@ -5,18 +5,15 @@ provider "google" {
 }
 
 terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 6.21.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.1"
-    }
-  }
   backend "gcs" {
     bucket = "henrique-tf-state"
-    prefix = "gke-app"
+    prefix = "gke-base"
   }
+}
+
+module "gcp_base" {
+  source         = "../../tf-modules/base"
+  gcp_project_id = var.gcp_project_id
+  gcp_region     = var.gcp_region
+  environment    = var.environment
 }

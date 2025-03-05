@@ -2,7 +2,7 @@
 
 - Deploy Infra + GKE
 
-`make tf-gke-apply`
+`TF_ACTION=apply make tf-gke`
 
 - Deploy GKE App
 

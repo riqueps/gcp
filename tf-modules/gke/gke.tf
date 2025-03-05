@@ -6,15 +6,15 @@ data "google_client_config" "default" {}
 
 # gke service account
 resource "google_service_account" "service_account" {
-  account_id   = "${var.env_name}-gke-sa"
+  account_id   = "${var.environment}-gke-sa"
   display_name = "GKE Service Account"
 }
 
 # random string for key ring
 resource "random_string" "random" {
-  length           = 5
-  special          = false
-  lower            = true
+  length  = 5
+  special = false
+  lower   = true
 }
 
 # kms
@@ -26,7 +26,7 @@ module "kms" {
   project_id           = var.gcp_project_id
   key_protection_level = "HSM"
   location             = var.gcp_region
-  keyring              = "${var.env_name}-keyring-${random_string.random.result}"
+  keyring              = "${var.environment}-keyring-${random_string.random.result}"
   keys                 = ["gke-key"]
   prevent_destroy      = false
 }
@@ -35,10 +35,10 @@ module "kms" {
 resource "google_kms_crypto_key_iam_binding" "main" {
   crypto_key_id = values(module.kms.keys)[0]
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  members        = [
+  members = [
     "serviceAccount:service-${data.google_project.main.number}@container-engine-robot.iam.gserviceaccount.com",
     "serviceAccount:service-${data.google_project.main.number}@compute-system.iam.gserviceaccount.com",
-    "serviceAccount:${var.env_name}-gke-sa@${var.gcp_project_id}.iam.gserviceaccount.com"
+    "serviceAccount:${var.environment}-gke-sa@${var.gcp_project_id}.iam.gserviceaccount.com"
   ]
 }
 
@@ -54,30 +54,30 @@ module "gke" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/beta-autopilot-private-cluster"
   version = "~> 36.0.2"
 
-  project_id              = var.gcp_project_id
-  name                    = "${var.env_name}-gke-cluster"
-  region                  = var.gcp_region
-  zones                   = ["us-central1-a", "us-central1-b"]
-  network                 = var.network
-  subnetwork              = "private"
-  ip_range_pods           = var.pod_range
-  ip_range_services       = var.service_range
-  release_channel         = "REGULAR"
-  grant_registry_access   = true
-  enable_private_nodes    = true
-  enable_private_endpoint = true
-  deletion_protection     = false
-  dns_cache               = false
-  create_service_account  = false
-  service_account         = google_service_account.service_account.email
-  boot_disk_kms_key       = values(module.kms.keys)[0]
+  project_id                 = var.gcp_project_id
+  name                       = "${var.environment}-gke-cluster"
+  region                     = var.gcp_region
+  zones                      = ["us-central1-a", "us-central1-b"]
+  network                    = var.network
+  subnetwork                 = "private"
+  ip_range_pods              = var.pod_range
+  ip_range_services          = var.service_range
+  release_channel            = "REGULAR"
+  grant_registry_access      = true
+  enable_private_nodes       = true
+  enable_private_endpoint    = true
+  deletion_protection        = false
+  dns_cache                  = false
+  create_service_account     = false
+  service_account            = google_service_account.service_account.email
+  boot_disk_kms_key          = values(module.kms.keys)[0]
   horizontal_pod_autoscaling = true
 
   master_authorized_networks = [{
     cidr_block   = "${module.bastion.ip_address}/32"
     display_name = "Private access"
   }]
-  
+
   database_encryption = [
     {
       "key_name" : module.kms.keys["gke-key"],
@@ -85,5 +85,5 @@ module "gke" {
     }
   ]
 
-  depends_on = [ module.kms, google_kms_crypto_key_iam_binding.main ]
+  depends_on = [module.kms, google_kms_crypto_key_iam_binding.main]
 }
