@@ -1,8 +1,8 @@
-module security_policy {
+module "security_policy" {
   source = "GoogleCloudPlatform/cloud-armor/google"
 
   project_id                           = var.gcp_project_id
-  name                                 = "${var.env_name}-ca-policy"
+  name                                 = "${var.environment}-ca-policy"
   description                          = "Cloud Armor security policy with preconfigured rules, security rules and custom rules"
   default_rule_action                  = "deny(403)"
   type                                 = "CLOUD_ARMOR"
@@ -11,8 +11,8 @@ module security_policy {
   json_parsing                         = "STANDARD"
   log_level                            = "VERBOSE"
 
-  pre_configured_rules                 = {}
-  security_rules                       = {}
-  custom_rules                         = {}
-  threat_intelligence_rules            = {}
+  pre_configured_rules      = {}
+  security_rules            = {}
+  custom_rules              = {}
+  threat_intelligence_rules = {}
 }

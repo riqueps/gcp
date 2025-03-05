@@ -1,34 +1,34 @@
 variable "gcp_project_id" {
-  type = string
+  type        = string
   description = "GCP Projecto ID"
 }
 
 variable "gcp_region" {
-  type = string
+  type        = string
   description = "GCP Region"
 }
 
-variable "env_name" {
-  type = string
+variable "environment" {
+  type        = string
   description = "Env Name (sample, dev, test, ...)"
 }
 
 variable "network" {
-  type = string
+  type        = string
   description = "GCP VPC Network"
 }
 
 variable "private_subnet_selflink" {
-  type = string
+  type        = string
   description = "Private subnet selflink"
 }
 
 variable "pod_range" {
-  type = string
+  type        = string
   description = "POD ip range"
 }
 
 variable "service_range" {
-  type = string
+  type        = string
   description = "Service ip range"
 }

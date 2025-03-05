@@ -1,24 +1,24 @@
 data "google_client_config" "default" {}
 
 data "google_container_cluster" "gke_cluster" {
-  name     = "${var.env_name}-gke-cluster"
+  name     = "${var.environment}-gke-cluster"
   location = var.gcp_region
 }
 
 provider "kubernetes" {
-  host  = "https://${data.google_container_cluster.gke_cluster.endpoint}"
-  token = data.google_client_config.default.access_token
+  host                   = "https://${data.google_container_cluster.gke_cluster.endpoint}"
+  token                  = data.google_client_config.default.access_token
   cluster_ca_certificate = base64decode(data.google_container_cluster.gke_cluster.master_auth[0].cluster_ca_certificate)
 }
 
 # Workload identity for gke workloads
 # https://registry.terraform.io/modules/terraform-google-modules/kubernetes-engine/google/11.0.0/submodules/workload-identity
 module "workload_identity_hello_app" {
-  source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
-  version             = "11.0.0"
-  project_id          = var.gcp_project_id
-  name                = "example-hello-app-sa"
-  namespace           = "default"
+  source     = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
+  version    = "11.0.0"
+  project_id = var.gcp_project_id
+  name       = "example-hello-app-sa"
+  namespace  = "default"
 }
 
 # Grant storage admin permission to the SA
@@ -40,7 +40,7 @@ resource "kubernetes_deployment_v1" "default" {
         app = "hello-app"
       }
     }
-    
+
     template {
       metadata {
         labels = {
@@ -111,8 +111,8 @@ resource "kubernetes_service_v1" "default" {
   metadata {
     name = "example-hello-app-service"
     annotations = {
-      "cloud.google.com/neg" = "{\"ingress\": true}"
-      "cloud.google.com/backend-config"= "{\"ports\": {\"80\":\"example-hello-app-backendconfig\"}}"
+      "cloud.google.com/neg"            = "{\"ingress\": true}"
+      "cloud.google.com/backend-config" = "{\"ports\": {\"80\":\"example-hello-app-backendconfig\"}}"
     }
   }
 
@@ -143,8 +143,8 @@ resource "kubernetes_ingress_v1" "ingress" {
         port {
           number = 80
         }
-      } 
-      
+      }
+
     }
   }
 }
@@ -159,7 +159,7 @@ resource "kubernetes_manifest" "backendconfig" {
     }
     "spec" = {
       "securityPolicy" = {
-        "name" = "${var.env_name}-ca-policy"
+        "name" = "${var.environment}-ca-policy"
       }
     }
   }

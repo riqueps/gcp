@@ -27,13 +27,13 @@ module "bastion" {
   subnet         = var.private_subnet_selflink
   project        = var.gcp_project_id
   host_project   = var.gcp_project_id
-  name           = "${var.env_name}-bastion"
+  name           = "${var.environment}-bastion"
   zone           = "us-central1-a"
   image_project  = "debian-cloud"
   machine_type   = "e2-micro"
   startup_script = templatefile("${path.module}/bastion.tftpl", {})
-#   members        = var.bastion_members
-  shielded_vm    = "false"
+  #   members        = var.bastion_members
+  shielded_vm = "false"
 
-#   service_account_roles = ["roles/container.viewer"]
+  #   service_account_roles = ["roles/container.viewer"]
 }

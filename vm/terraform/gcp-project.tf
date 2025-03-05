@@ -23,11 +23,16 @@ module "enabled_google_apis" {
 }
 
 # compute metadata
+# block-project-ssh-keys:  https://cloud.google.com/compute/docs/connect/restrict-ssh-keys#during-vm-creation
+# enable-oslogin:          https://cloud.google.com/compute/docs/oslogin/set-up-oslogin#enable_os_login_for_all_vms_in_a_project
+# enable-osconfig:         https://cloud.google.com/compute/vm-manager/docs/setup#enable-vmm-org-policy
+# enable-guest-attributes: https://cloud.google.com/compute/docs/metadata/manage-guest-attributes#enable_attributes
+
 resource "google_compute_project_metadata" "default" {
   metadata = {
-    block-project-ssh-keys = "TRUE"
-    enable-guest-attibutes = "TRUE"
-    enable-os-config       = "TRUE"
-    enable-os-login        = "TRUE"
+    block-project-ssh-keys  = "TRUE"
+    enable-guest-attributes = "TRUE"
+    enable-osconfig         = "TRUE"
+    enable-oslogin          = "TRUE"
   }
 }
